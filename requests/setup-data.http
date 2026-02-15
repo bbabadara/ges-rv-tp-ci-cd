@@ -1,0 +1,67 @@
+### ============================================
+### SCRIPT D'INITIALISATION DES DONNÉES DE TEST
+### ============================================
+### 
+### Ce fichier contient des requêtes SQL pour initialiser
+### les données nécessaires au fonctionnement de l'API
+###
+### Exécutez ces requêtes dans votre client PostgreSQL
+### (pgAdmin, DBeaver, psql, etc.)
+### ============================================
+
+### 1. Créer des spécialités médicales
+### 
+### Exécutez cette requête SQL dans votre base de données :
+/*
+INSERT INTO specialite (id, code, nom) VALUES
+(gen_random_uuid(), 'GEN', 'Généraliste'),
+(gen_random_uuid(), 'CAR', 'Cardiologie'),
+(gen_random_uuid(), 'DER', 'Dermatologie'),
+(gen_random_uuid(), 'GYN', 'Gynécologie'),
+(gen_random_uuid(), 'PED', 'Pédiatrie'),
+(gen_random_uuid(), 'ORL', 'Oto-rhino-laryngologie'),
+(gen_random_uuid(), 'OPH', 'Ophtalmologie'),
+(gen_random_uuid(), 'ORT', 'Orthopédie'),
+(gen_random_uuid(), 'NEU', 'Neurologie'),
+(gen_random_uuid(), 'PSY', 'Psychiatrie')
+ON CONFLICT DO NOTHING;
+*/
+
+### 2. Créer des antécédents médicaux
+### 
+### Exécutez cette requête SQL dans votre base de données :
+/*
+INSERT INTO antecedent (id, code, nom) VALUES
+(gen_random_uuid(), 'HTA', 'Hypertension artérielle'),
+(gen_random_uuid(), 'DIAB', 'Diabète'),
+(gen_random_uuid(), 'ASTH', 'Asthme'),
+(gen_random_uuid(), 'ALLE', 'Allergies'),
+(gen_random_uuid(), 'CARD', 'Maladies cardiaques'),
+(gen_random_uuid(), 'CANC', 'Antécédents de cancer')
+ON CONFLICT DO NOTHING;
+*/
+
+### 3. Récupérer les IDs des spécialités créées
+### 
+### Exécutez cette requête pour obtenir les IDs :
+/*
+SELECT id, code, nom FROM specialite;
+*/
+
+### ============================================
+### ALTERNATIVE : Créer via l'API (si endpoint admin existe)
+### ============================================
+
+### Note: Ces endpoints nécessiteraient d'être implémentés
+### dans l'API pour créer des spécialités et antécédents
+
+### Créer une spécialité (exemple - à implémenter)
+# POST {{apiUrl}}/admin/specialites
+# Authorization: Bearer {{adminToken}}
+# Content-Type: application/json
+# 
+# {
+#   "code": "GEN",
+#   "nom": "Généraliste"
+# }
+

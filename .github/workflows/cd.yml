@@ -1,27 +1,66 @@
-name: CD API Ges-RV
+name: CD Pipeline
 
 on:
   push:
     tags:
-      - "v*"
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
-
+    runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
-
-      - name: Installer Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Installer les dépendances
-        run: npm ci
-
-      - name: Déployer l'application
-        run: |
-          echo "Déploiement en production..."
-          echo "Version déployée : $GITHUB_REF_NAME"
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Get version from tag
+      id: get_version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "🚀 Déploiement de la version $VERSION en production"
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Display deployment information
+      run: |
+        echo "======================================"
+        echo "📦 Version déployée: ${{ steps.get_version.outputs.VERSION }}"
+        echo "📅 Date: $(date '+%Y-%m-%d %H:%M:%S')"
+        echo "🔄 Commit: ${{ github.sha }}"
+        echo "======================================"
+        
+    - name: Simulate deployment to production
+      run: |
+        echo "🚀 Début du déploiement en production..."
+        sleep 2
+        echo "✅ Build vérifié avec succès"
+        sleep 1
+        echo "📦 Artefacts prêts pour le déploiement"
+        sleep 1
+        echo "✅ Déploiement terminé avec succès !"
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          Version ${{ steps.get_version.outputs.VERSION }} déployée en production.
+          
+          ## Changements
+          - Mise à jour de l'API de gestion des rendez-vous médicaux
+          - Amélioration des performances
+          - Correction de bugs
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

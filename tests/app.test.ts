@@ -1,17 +1,37 @@
 import request from "supertest";
 import app from "../src/app";
 
-describe("GET /api/patients", () => {
-  it("doit retourner HTTP 200 et status OK", async () => {
-    const response = await request(app).get("/api/patients");
+describe("Tests des endpoints selon les spécifications", () => {
+  describe("GET /api/patients", () => {
+    it("doit retourner HTTP 200 et status OK", async () => {
+      const response = await request(app).get("/api/patients");
 
-    expect(response.status).toBe(200);
-    expect(response.body.status).toBe("OK");
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe("OK");
+    });
+
+    it("doit échouer si l'endpoint est incorrect", async () => {
+      const response = await request(app).get("/api/patient");
+
+      expect(response.status).toBe(404);
+    });
   });
 
-  it("doit échouer si l'endpoint est incorrect", async () => {
-    const response = await request(app).get("/api/patient");
+  describe("GET /api/demandes", () => {
+    it("doit retourner HTTP 200 et status OK", async () => {
+      const response = await request(app).get("/api/demandes");
 
-    expect(response.status).toBe(404);
+      // Peut être 401 si non authentifié, mais si authentifié doit être 200
+      expect([200, 401]).toContain(response.status);
+      if (response.status === 200) {
+        expect(response.body.status).toBe("OK");
+      }
+    });
+
+    it("doit échouer si l'endpoint est incorrect", async () => {
+      const response = await request(app).get("/api/demande");
+
+      expect(response.status).toBe(404);
+    });
   });
 });

@@ -1,0 +1,208 @@
+### Variables
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+@token = your_token_here
+curl -X POST http://localhost:3000/api/patients `
+  -H "Content-Type: application/json" `
+  -d '{
+    "nom": "Dupont",
+    "prenom": "Jean",
+    "email": "bba@gmail.com",
+    "motDePasse": "passer123",
+    "telephone": "0123456789",
+    "adresse": "123 Rue de la Santé, Paris",
+    "antecedents": []
+  }'
+### ============================================
+### ENDPOINTS PUBLICS - PATIENTS
+### ============================================
+
+### 1. Route de santé
+GET {{baseUrl}}/health
+
+### 2. Route principale
+GET {{baseUrl}}/
+
+### 3. Créer un compte patient
+POST {{apiUrl}}/patients
+Content-Type: application/json
+
+{
+  "nom": "Dupont",
+  "prenom": "Jean",
+  "email": "jean.dupont@example.com",
+  "motDePasse": "password123",
+  "telephone": "0123456789",
+  "adresse": "123 Rue de la Santé, Paris",
+  "antecedents": []
+}
+
+### 4. Créer un compte patient avec antécédents médicaux
+POST {{apiUrl}}/patients
+Content-Type: application/json
+
+{
+  "nom": "Martin",
+  "prenom": "Marie",
+  "email": "abc@abc.com",
+  "motDePasse": "passer123",
+  "telephone": "0987654321",
+  "adresse": "456 Avenue de la Médecine, Lyon",
+  "antecedents": []
+}
+
+### 5. Connexion patient
+POST {{apiUrl}}/patients/login
+Content-Type: application/json
+
+{
+  "email": "jean.dupont@example.com",
+  "motDePasse": "password123"
+}
+
+### ============================================
+### ENDPOINTS PROTÉGÉS - PATIENTS
+### (Nécessitent un token JWT)
+### ============================================
+
+### 6. Récupérer tous les patients (nécessite authentification)
+GET {{apiUrl}}/patients
+Authorization: Bearer {{token}}
+
+### 7. Récupérer un patient par ID
+GET {{apiUrl}}/patients/{{patientId}}
+Authorization: Bearer {{token}}
+
+### 8. Récupérer le profil du patient connecté
+GET {{apiUrl}}/patients/me
+Authorization: Bearer {{token}}
+
+### 9. Mettre à jour un patient
+PUT {{apiUrl}}/patients/{{patientId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Dupont",
+  "prenom": "Jean-Pierre",
+  "telephone": "0123456789",
+  "adresse": "123 Rue de la Santé, Paris 75001"
+}
+
+### 10. Supprimer un patient
+DELETE {{apiUrl}}/patients/{{patientId}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### ENDPOINTS PROTÉGÉS - DEMANDES DE RENDEZ-VOUS
+### (Nécessitent un token JWT)
+### ============================================
+
+### 11. Créer une demande de rendez-vous
+POST {{apiUrl}}/demandes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "date": "2024-12-25",
+  "heure": "14:00",
+  "specialiteId": "{{specialiteId}}",
+  "commentaire": "Première consultation"
+}
+
+### 12. Récupérer toutes les demandes (admin)
+GET {{apiUrl}}/demandes
+Authorization: Bearer {{token}}
+
+### 13. Récupérer une demande par ID
+GET {{apiUrl}}/demandes/{{demandeId}}
+Authorization: Bearer {{token}}
+
+### 14. Lister mes demandes de rendez-vous
+GET {{apiUrl}}/demandes/mine
+Authorization: Bearer {{token}}
+
+### 15. Filtrer mes demandes par statut (En attente)
+GET {{apiUrl}}/demandes/mine/filter?statut=En attente
+Authorization: Bearer {{token}}
+
+### 16. Filtrer mes demandes par statut (Valider)
+GET {{apiUrl}}/demandes/mine/filter?statut=Valider
+Authorization: Bearer {{token}}
+
+### 17. Filtrer mes demandes par statut (Refuser)
+GET {{apiUrl}}/demandes/mine/filter?statut=Refuser
+Authorization: Bearer {{token}}
+
+### 18. Voir mes rendez-vous confirmés (statut "Valider")
+GET {{apiUrl}}/demandes/mine/confirmed
+Authorization: Bearer {{token}}
+
+### 19. Mettre à jour une demande
+PUT {{apiUrl}}/demandes/{{demandeId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "date": "2024-12-26",
+  "heure": "15:00",
+  "specialiteId": "{{specialiteId}}"
+}
+
+### 20. Annuler une demande
+PUT {{apiUrl}}/demandes/{{demandeId}}/cancel
+Authorization: Bearer {{token}}
+
+### 21. Supprimer une demande
+DELETE {{apiUrl}}/demandes/{{demandeId}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### EXEMPLES DE WORKFLOW COMPLET
+### ============================================
+
+### Workflow 1: Créer un compte et faire une demande
+### Étape 1: Créer un compte
+POST {{apiUrl}}/patients
+Content-Type: application/json
+
+{
+  "nom": "Test",
+  "prenom": "User",
+  "email": "test.user@example.com",
+  "motDePasse": "test123",
+  "telephone": "0612345678",
+  "adresse": "Test Address"
+}
+
+### Étape 2: Se connecter (copier le token de la réponse)
+POST {{apiUrl}}/patients/login
+Content-Type: application/json
+
+{
+  "email": "test.user@example.com",
+  "motDePasse": "test123"
+}
+
+### Étape 3: Créer une demande (remplacer {{token}} par le token obtenu)
+POST {{apiUrl}}/demandes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "date": "2024-12-25",
+  "heure": "10:00",
+  "specialiteId": "{{specialiteId}}",
+  "commentaire": "Consultation de routine"
+}
+
+### Étape 4: Voir mes demandes
+GET {{apiUrl}}/demandes/mine
+Authorization: Bearer {{token}}
+
+### Étape 5: Voir mes rendez-vous confirmés
+GET {{apiUrl}}/demandes/mine/confirmed
+Authorization: Bearer {{token}}
+
+
+###

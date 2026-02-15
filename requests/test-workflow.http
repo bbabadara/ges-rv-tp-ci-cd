@@ -1,0 +1,184 @@
+### ============================================
+### WORKFLOW DE TEST COMPLET
+### ============================================
+### Ce fichier contient un workflow complet pour tester
+### tous les cas d'usage de l'application
+### ============================================
+
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+
+### Variables (seront remplies automatiquement)
+@patientToken = 
+@patientId = 
+@demandeId = 
+@specialiteId = 
+
+### ============================================
+### ÉTAPE 1: CRÉER UN COMPTE PATIENT
+### ============================================
+
+POST {{apiUrl}}/patients
+Content-Type: application/json
+
+{
+  "nom": "Dupont",
+  "prenom": "Jean",
+  "email": "jean.dupont.test@example.com",
+  "motDePasse": "password123",
+  "telephone": "0123456789",
+  "adresse": "123 Rue de la Santé, Paris 75001",
+  "antecedents": []
+}
+
+### Sauvegarder le patientId de la réponse ci-dessus
+### Exemple: @patientId = 550e8400-e29b-41d4-a716-446655440000
+
+### ============================================
+### ÉTAPE 2: SE CONNECTER
+### ============================================
+
+POST {{apiUrl}}/patients/login
+Content-Type: application/json
+
+{
+  "email": "jean.dupont.test@example.com",
+  "motDePasse": "password123"
+}
+
+### Sauvegarder le token de la réponse ci-dessus
+### Exemple: @patientToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### ============================================
+### ÉTAPE 3: RÉCUPÉRER LE PROFIL
+### ============================================
+
+GET {{apiUrl}}/patients/me
+Authorization: Bearer {{patientToken}}
+
+### ============================================
+### ÉTAPE 4: CRÉER UNE DEMANDE DE RENDEZ-VOUS
+### ============================================
+### 
+### IMPORTANT: Vous devez d'abord obtenir un specialiteId
+### en exécutant cette requête SQL:
+### SELECT id, code, nom FROM specialite LIMIT 1;
+### 
+### Puis remplacez {{specialiteId}} ci-dessous
+
+POST {{apiUrl}}/demandes
+Authorization: Bearer {{patientToken}}
+Content-Type: application/json
+
+{
+  "date": "2024-12-25",
+  "heure": "14:00",
+  "specialiteId": "{{specialiteId}}",
+  "commentaire": "Première consultation - douleurs abdominales"
+}
+
+### Sauvegarder le demandeId de la réponse ci-dessus
+
+### ============================================
+### ÉTAPE 5: LISTER MES DEMANDES
+### ============================================
+
+GET {{apiUrl}}/demandes/mine
+Authorization: Bearer {{patientToken}}
+
+### ============================================
+### ÉTAPE 6: FILTRER PAR STATUT "EN ATTENTE"
+### ============================================
+
+GET {{apiUrl}}/demandes/mine/filter?statut=En attente
+Authorization: Bearer {{patientToken}}
+
+### ============================================
+### ÉTAPE 7: VOIR UNE DEMANDE SPÉCIFIQUE
+### ============================================
+
+GET {{apiUrl}}/demandes/{{demandeId}}
+Authorization: Bearer {{patientToken}}
+
+### ============================================
+### ÉTAPE 8: MODIFIER UNE DEMANDE
+### ============================================
+
+PUT {{apiUrl}}/demandes/{{demandeId}}
+Authorization: Bearer {{patientToken}}
+Content-Type: application/json
+
+{
+  "date": "2024-12-26",
+  "heure": "15:30",
+  "commentaire": "Modification de l'heure de rendez-vous"
+}
+
+### ============================================
+### ÉTAPE 9: ANNULER UNE DEMANDE
+### ============================================
+
+PUT {{apiUrl}}/demandes/{{demandeId}}/cancel
+Authorization: Bearer {{patientToken}}
+
+### ============================================
+### ÉTAPE 10: VÉRIFIER LES DEMANDES ANNULÉES
+### ============================================
+
+GET {{apiUrl}}/demandes/mine/filter?statut=Refuser
+Authorization: Bearer {{patientToken}}
+
+### ============================================
+### ÉTAPE 11: METTRE À JOUR LE PROFIL
+### ============================================
+
+PUT {{apiUrl}}/patients/{{patientId}}
+Authorization: Bearer {{patientToken}}
+Content-Type: application/json
+
+{
+  "nom": "Dupont",
+  "prenom": "Jean-Pierre",
+  "telephone": "0123456789",
+  "adresse": "123 Rue de la Santé, Paris 75002"
+}
+
+### ============================================
+### TESTS D'ERREURS
+### ============================================
+
+### Test 1: Connexion avec mauvais mot de passe
+POST {{apiUrl}}/patients/login
+Content-Type: application/json
+
+{
+  "email": "jean.dupont.test@example.com",
+  "motDePasse": "wrongpassword"
+}
+
+### Test 2: Créer une demande sans authentification
+POST {{apiUrl}}/demandes
+Content-Type: application/json
+
+{
+  "date": "2024-12-25",
+  "heure": "14:00",
+  "specialiteId": "{{specialiteId}}"
+}
+
+### Test 3: Créer une demande avec des champs manquants
+POST {{apiUrl}}/demandes
+Authorization: Bearer {{patientToken}}
+Content-Type: application/json
+
+{
+  "date": "2024-12-25"
+}
+
+### Test 4: Accéder à une ressource protégée sans token
+GET {{apiUrl}}/patients/me
+
+### Test 5: Filtrer avec un statut invalide
+GET {{apiUrl}}/demandes/mine/filter?statut=INVALID
+Authorization: Bearer {{patientToken}}
+
